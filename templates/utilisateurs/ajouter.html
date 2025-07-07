@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+{% block title %}Ajouter un Utilisateur{% endblock %}
+
+{% block content %}
+  <h2>Ajouter un Utilisateur</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.nom.label(class="form-label") }}
+      {{ form.nom(class="form-control") }}
+      {% for error in form.nom.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.prenom.label(class="form-label") }}
+      {{ form.prenom(class="form-control") }}
+      {% for error in form.prenom.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.nom_utilisateur.label(class="form-label") }}
+      {{ form.nom_utilisateur(class="form-control") }}
+      {% for error in form.nom_utilisateur.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.mot_de_passe.label(class="form-label") }}
+      {{ form.mot_de_passe(class="form-control") }}
+      {% for error in form.mot_de_passe.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.role_id.label(class="form-label") }}
+      {{ form.role_id(class="form-select") }}
+      {% for error in form.role_id.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Ajouter</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>Liste des utilisateurs</h2>
+<a href="{{ url_for('utilisateurs.ajouter') }}" class="btn btn-success mb-3">Ajouter un utilisateur</a>
+<table class="table table-striped">
+  <thead><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>Nom utilisateur</th><th>Rôle</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for u in utilisateurs %}
+    <tr>
+      <td>{{ u[0] }}</td>
+      <td>{{ u[1] }}</td>
+      <td>{{ u[2] }}</td>
+      <td>{{ u[3] }}</td>
+      <td>{{ u[4] }}</td>
+      <td>
+        <a href="{{ url_for('utilisateurs.modifier', id=u[0]) }}" class="btn btn-warning btn-sm">Modifier</a>
+        <form method="POST" action="{{ url_for('utilisateurs.supprimer', id=u[0]) }}" style="display:inline;" onsubmit="return confirm('Confirmer la suppression ?');">
+          {{ csrf_token() }}
+          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

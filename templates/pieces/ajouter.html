@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>{% if piece %}Modifier{% else %}Ajouter{% endif %} une pièce</h2>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">{{ form.nom.label }} {{ form.nom(class="form-control") }}</div>
+  <div class="mb-3">{{ form.reference.label }} {{ form.reference(class="form-control") }}</div>
+  <div class="mb-3">{{ form.quantite.label }} {{ form.quantite(class="form-control") }}</div>
+  <div class="mb-3">{{ form.seuil.label }} {{ form.seuil(class="form-control") }}</div>
+  <div class="mb-3">{{ form.prix_achat.label }} {{ form.prix_achat(class="form-control") }}</div>
+  <div class="mb-3">{{ form.prix_vente.label }} {{ form.prix_vente(class="form-control") }}</div>
+  <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+  <a href="{{ url_for('pieces.liste') }}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

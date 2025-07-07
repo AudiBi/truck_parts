@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>Mouvements</h2>
+<a href="{{ url_for('mouvements.ajouter_mouvement') }}" class="btn btn-primary mb-3">Ajouter Mouvement</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Date</th><th>Article</th><th>Type</th><th>Quantité</th><th>Utilisateur</th><th>Commentaire</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in mouvements %}
+        <tr>
+            <td>{{ m.date.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ m.piece.nom }}</td>
+            <td>{{ m.type }}</td>
+            <td>{{ m.quantite }}</td>
+            <td>{{ m.utilisateur.prenom }} {{ m.utilisateur.nom }}</td>
+            <td>{{ m.commentaire }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

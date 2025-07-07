@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>{% if utilisateur %}Modifier{% else %}Ajouter{% endif %} un utilisateur</h2>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">{{ form.nom.label }} {{ form.nom(class="form-control") }}</div>
+  <div class="mb-3">{{ form.prenom.label }} {{ form.prenom(class="form-control") }}</div>
+  <div class="mb-3">{{ form.nom_utilisateur.label }} {{ form.nom_utilisateur(class="form-control") }}</div>
+  <div class="mb-3">{{ form.mot_de_passe.label }} {{ form.mot_de_passe(class="form-control") }}</div>
+  <div class="mb-3">{{ form.confirmation.label }} {{ form.confirmation(class="form-control") }}</div>
+  <div class="mb-3">{{ form.role_id.label }} {{ form.role_id(class="form-select") }}</div>
+  <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+  <a href="{{ url_for('utilisateurs.liste') }}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}
