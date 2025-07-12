@@ -1,36 +1,42 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+# routes/auth.py
+
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_user, logout_user, login_required
+from forms import LoginForm
+from models import Utilisateur
 from werkzeug.security import check_password_hash
-from models import db, Utilisateur
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        nom_utilisateur = request.form['nom_utilisateur']
-        mot_de_passe = request.form['mot_de_passe']
-        utilisateur = Utilisateur.query.filter_by(nom_utilisateur=nom_utilisateur).first()
-
-        if utilisateur and check_password_hash(utilisateur.mot_de_passe, mot_de_passe):
-            session['utilisateur'] = {
-                'id': utilisateur.id,
-                'nom': utilisateur.nom,
-                'prenom': utilisateur.prenom,
-                'role': utilisateur.role.nom
-            }
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = Utilisateur.query.filter_by(nom_utilisateur=form.nom_utilisateur.data).first()
+        if user and user.check_password(form.mot_de_passe.data):
+            login_user(user)
             flash('Connexion réussie.', 'success')
-            if utilisateur.role.nom == 'admin':
-                return redirect(url_for('admin_bp.admin_dashboard'))
-            elif utilisateur.role.nom == 'vendeur':
-                return redirect(url_for('vente_bp.dashboard_vendeur'))
-            return redirect(url_for('dashboard'))
 
-        flash('Identifiants invalides.', 'danger')
+            # Redirection selon le rôle
+            role = user.role.nom.lower()
+            if role == 'admin':
+                return redirect(url_for('admin.index'))
+            elif role == 'vendeur':
+                return redirect(url_for('ventes.dashboard_vendeur'))
+            elif role == 'gestionnaire':
+                return redirect(url_for('mouvements.dashboard_gestionnaire'))
+            else:
+                flash("Rôle utilisateur inconnu.", "warning")
+                return redirect(url_for('auth.login'))
 
-    return render_template('login.html')
+        else:
+            flash('Nom d’utilisateur ou mot de passe incorrect.', 'danger')
+
+    return render_template('login.html', form=form)
 
 @auth_bp.route('/logout')
+@login_required
 def logout():
-    session.clear()
+    logout_user()
     flash('Déconnexion réussie.', 'success')
     return redirect(url_for('auth.login'))

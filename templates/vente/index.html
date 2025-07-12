@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de bord Vendeur{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Bienvenue, {{ current_user.prenom }} (Vendeur)</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Dernières ventes</h5>
+            <p class="card-text">Voir les ventes récentes et ajouter de nouvelles transactions.</p>
+            <a href="{{ url_for('ventes.lister_ventes') }}" class="btn btn-primary">Voir les ventes</a>
+            <a href="{{ url_for('ventes.nouvelle_vente') }}" class="btn btn-success">Nouvelle vente</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

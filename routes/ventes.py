@@ -1,74 +1,100 @@
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, flash, redirect, render_template, request, jsonify, session, url_for
+from flask_login import current_user, login_required
+from decorators import role_requis
+from forms import VenteForm
 from models import db, Vente, Piece, Centre
-from decorators import login_required, role_required
 from datetime import datetime
+
+from utils import enregistrer_action
 
 vente_bp = Blueprint('ventes', __name__, url_prefix='/ventes')
 
 @vente_bp.route('/dashboard')
 @login_required
-@role_required('vendeur')
+@role_requis('vendeur')
 def dashboard_vendeur():
-    return render_template('dashboard/dashboard_vendeur.html', utilisateur=session.get('utilisateur'))
+    enregistrer_action(current_user.id, "Consultation dashboard ventes")
+    return render_template('vente/index.html')
 
-@vente_bp.route('', methods=['POST'])
-def create_vente():
-    data = request.json
-    vente = Vente(
-        piece_id=data['piece_id'],
-        quantite=data['quantite'],
-        prix=data['prix'],
-        centre_id=data['centre_id'],
-        utilisateur_id=data.get('utilisateur_id'),
-        date=datetime.strptime(data['date'], "%Y-%m-%d") if 'date' in data else datetime.utcnow()
-    )
-    db.session.add(vente)
-    db.session.commit()
-    return jsonify({"message": "Vente enregistrée."}), 201
+@vente_bp.route('/ventes/nouvelle', methods=['GET', 'POST'])
+@login_required
+@role_requis('vendeur')
+def nouvelle_vente():
+    form = VenteForm()
+    form.piece_id.choices = [(p.id, p.nom) for p in Piece.query.all()]
+    form.centre_id.choices = [(c.id, c.nom) for c in Centre.query.all()]
 
-@vente_bp.route('', methods=['GET'])
-def get_all_ventes():
-    ventes = Vente.query.all()
-    return jsonify([
-        {
-            "id": v.id,
-            "piece": v.piece.nom,
-            "quantite": v.quantite,
-            "prix": v.prix,
-            "centre": v.centre.nom,
-            "date": v.date.strftime("%Y-%m-%d %H:%M:%S")
-        } for v in ventes
-    ])
+    if form.validate_on_submit():
+        vente = Vente(
+            piece_id=form.piece_id.data,
+            quantite=form.quantite.data,
+            prix=form.prix.data,
+            centre_id=form.centre_id.data,
+            utilisateur_id=current_user.id
+        )
+        db.session.add(vente)
+        db.session.commit()
+        flash("Vente enregistrée.", "success")
+        return redirect(url_for('ventes.lister_ventes'))
 
-@vente_bp.route('/<int:id>', methods=['GET'])
-def get_vente(id):
-    vente = Vente.query.get_or_404(id)
-    return jsonify({
-        "id": vente.id,
-        "piece": vente.piece.nom,
-        "quantite": vente.quantite,
-        "prix": vente.prix,
-        "centre": vente.centre.nom,
-        "date": vente.date.strftime("%Y-%m-%d %H:%M:%S")
-    })
+    return render_template('vente/nouvelle_vente.html', form=form)
 
-@vente_bp.route('/<int:id>', methods=['PUT'])
-def update_vente(id):
-    vente = Vente.query.get_or_404(id)
-    data = request.json
-    vente.piece_id = data.get('piece_id', vente.piece_id)
-    vente.quantite = data.get('quantite', vente.quantite)
-    vente.prix = data.get('prix', vente.prix)
-    vente.centre_id = data.get('centre_id', vente.centre_id)
-    vente.utilisateur_id = data.get('utilisateur_id', vente.utilisateur_id)
-    if 'date' in data:
-        vente.date = datetime.strptime(data['date'], "%Y-%m-%d")
-    db.session.commit()
-    return jsonify({"message": "Vente mise à jour."})
 
-@vente_bp.route('/<int:id>', methods=['DELETE'])
-def delete_vente(id):
-    vente = Vente.query.get_or_404(id)
+
+@vente_bp.route('/ventes')
+@login_required
+@role_requis('vendeur')
+def lister_ventes():
+    piece_nom = request.args.get('piece')
+    centre_id = request.args.get('centre')
+    date_str = request.args.get('date')
+
+    ventes_query = Vente.query
+
+    if piece_nom:
+        ventes_query = ventes_query.join(Piece).filter(Piece.nom.ilike(f'%{piece_nom}%'))
+    if centre_id:
+        ventes_query = ventes_query.filter_by(centre_id=centre_id)
+    if date_str:
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%d')
+            ventes_query = ventes_query.filter(db.func.date(Vente.date) == date.date())
+        except ValueError:
+            flash("Date invalide", "warning")
+
+    ventes = ventes_query.order_by(Vente.date.desc()).all()
+    centres = Centre.query.all()
+    return render_template('vente/lister_ventes.html', ventes=ventes, centres=centres)
+
+@vente_bp.route('/ventes/modifier/<int:vente_id>', methods=['GET', 'POST'])
+@login_required
+@role_requis('vendeur')
+def modifier_vente(vente_id):
+    vente = Vente.query.get_or_404(vente_id)
+    pieces = Piece.query.all()
+    centres = Centre.query.all()
+
+    if request.method == 'POST':
+        vente.piece_id = request.form['piece_id']
+        vente.quantite = int(request.form['quantite'])
+        vente.prix = float(request.form['prix'])
+        vente.centre_id = request.form['centre_id']
+        db.session.commit()
+        flash("Vente mise à jour.", "success")
+        return redirect(url_for('vente.lister_ventes'))
+
+    return render_template('vente/modifier_vente.html', vente=vente, pieces=pieces, centres=centres)
+
+
+@vente_bp.route('/ventes/supprimer/<int:vente_id>', methods=['POST'])
+@login_required
+@role_requis('vendeur')
+def supprimer_vente(vente_id):
+    vente = Vente.query.get_or_404(vente_id)
     db.session.delete(vente)
     db.session.commit()
-    return jsonify({"message": "Vente supprimée."})
+    flash("Vente supprimée.", "success")
+    return redirect(url_for('vente.lister_ventes'))
+
+
+

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Stock du centre - Truck Parts{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">📦 Tableau de bord du stock - {{ current_user.centre.nom }}</h2>
+
+    <!-- Alertes de stock bas -->
+    {% set alertes = stock_infos | selectattr("sous_seuil") | list %}
+    {% if alertes %}
+        <div class="alert alert-danger" role="alert">
+            <strong>⚠️ Attention :</strong> Les pièces suivantes sont en dessous de leur seuil :
+            <ul class="mb-0">
+                {% for a in alertes %}
+                    <li>{{ a.stock.piece.nom }} ({{ a.stock.quantite }} / seuil {{ a.stock.piece.seuil }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Formulaire de recherche -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="🔍 Rechercher une pièce..." value="{{ search }}">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+            {% if search %}
+                <a href="{{ url_for('stock.consulter_stock') }}" class="btn btn-secondary">Réinitialiser</a>
+            {% endif %}
+        </div>
+        <div class="col-md-3 text-end">
+            <a href="{{ url_for('stock.export_excel') }}" class="btn btn-success">📥 Exporter en Excel</a>
+        </div>
+    </form>
+
+    <!-- Tableau de stock -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nom de la pièce</th>
+                    <th>Référence</th>
+                    <th>Quantité</th>
+                    <th>Seuil</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in stock_infos %}
+                <tr class="{% if item.sous_seuil %}table-danger{% endif %}">
+                    <td>{{ item.stock.piece.nom }}</td>
+                    <td>{{ item.stock.piece.reference }}</td>
+                    <td>{{ item.stock.quantite }}</td>
+                    <td>{{ item.stock.piece.seuil }}</td>
+                    <td>
+                        <a href="{{ url_for('stock.modifier_quantite', stock_id=item.stock.id) }}" class="btn btn-sm btn-outline-primary">Modifier</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

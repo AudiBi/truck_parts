@@ -1,0 +1,22 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+    <div class="container mt-4">
+        <h2>Stock total par pièce</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nom de la pièce</th>
+                    <th>Quantité totale</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nom, quantite in stock_data %}
+                    <tr>
+                        <td>{{ nom }}</td>
+                        <td>{{ quantite }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

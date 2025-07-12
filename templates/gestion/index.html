@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de bord Gestionnaire - Truck Parts{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">👋 Bienvenue, {{ current_user.prenom }} (Gestionnaire)</h2>
+
+    <div class="row g-4">
+        <!-- Gestion des stocks -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">📦 Gestion des stocks</h5>
+                    <p class="card-text">Visualisez et mettez à jour les quantités disponibles dans votre centre.</p>
+                    <a href="{{ url_for('stock.consulter_stock') }}" class="btn btn-outline-primary">
+                        📊 Voir le stock
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mouvements de pièces -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">🔄 Mouvements de pièces</h5>
+                    <p class="card-text">Ajoutez ou consultez les mouvements de stock (entrée, sortie, transfert).</p>
+                    <a href="{{ url_for('mouvements.lister_mouvements') }}" class="btn btn-outline-secondary">
+                        📜 Historique des mouvements
+                    </a>
+                    <a href="{{ url_for('mouvements.nouveau_mouvement') }}" class="btn btn-warning ms-2">
+                        ➕ Nouveau mouvement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

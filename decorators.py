@@ -1,23 +1,24 @@
 from functools import wraps
-from flask import session, redirect, url_for, flash
+from flask import abort, redirect, url_for
+from flask_login import current_user
 
-def login_required(f):
+
+def login_required_custom(f):
     @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'utilisateur' not in session:
-            flash('Veuillez vous connecter.', 'warning')
+    def decorated(*args, **kwargs):
+        if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
-    return decorated_function
+    return decorated
 
-def role_required(role):
+def role_requis(role):
     def decorator(f):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
-            utilisateur = session.get('utilisateur')
-            if not utilisateur or utilisateur.get('role') != role:
-                flash('Accès interdit.', 'danger')
-                return redirect(url_for('auth.login'))
+        def wrapped(*args, **kwargs):
+            if not current_user.is_authenticated or current_user.role.nom.lower() != role.lower():
+                abort(403)
             return f(*args, **kwargs)
-        return decorated_function
+        return wrapped
     return decorator
+
+

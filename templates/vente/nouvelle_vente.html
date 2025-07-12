@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouvelle vente{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Nouvelle vente</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.piece_id.label(class="form-label") }}
+            {{ form.piece_id(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.quantite.label(class="form-label") }}
+            {{ form.quantite(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.prix.label(class="form-label") }}
+            {{ form.prix(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.centre_id.label(class="form-label") }}
+            {{ form.centre_id(class="form-control") }}
+        </div>
+        {{ form.submit(class="btn btn-success") }}
+        <a href="{{ url_for('ventes.lister_ventes') }}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

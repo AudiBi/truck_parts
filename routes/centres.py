@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify
-from models import db, Centre
+from flask import Blueprint, render_template, request, jsonify
+from flask_login import login_required
+from models import Piece, StockCentre, db, Centre
 
 centre_bp = Blueprint('centre', __name__, url_prefix='/centre')
 
@@ -36,3 +37,24 @@ def delete_centre(id):
     db.session.delete(centre)
     db.session.commit()
     return jsonify({"message": "Centre supprimé."})
+
+
+@centre_bp.route('/centre/<int:id>/stock')
+@login_required
+def stock_par_centre(id):
+    centre = Centre.query.get_or_404(id)
+
+    stock_data = (
+        db.session.query(
+            Piece.nom.label("piece"),
+            StockCentre.quantite,
+            Piece.seuil
+        )
+        .join(Piece)
+        .filter(StockCentre.centre_id == id)
+        .all()
+    )
+
+    return render_template("stock_centre_detail.html",
+                           centre=centre,
+                           stock_data=stock_data)

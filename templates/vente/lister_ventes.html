@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouveau mouvement{% endblock %}
+
+{% block content %}
+
+<h2>Liste des ventes</h2>
+<a href="{{ url_for('ventes.nouvelle_vente') }}" class="btn btn-success mb-3">Ajouter une vente</a>
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="piece" class="form-control" placeholder="Nom de la pièce" value="{{ request.args.piece }}">
+    </div>
+    <div class="col-md-3">
+        <select name="centre" class="form-control">
+            <option value="">-- Tous les centres --</option>
+            {% for centre in centres %}
+                <option value="{{ centre.id }}" {% if request.args.centre == centre.id|string %}selected{% endif %}>{{ centre.nom }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="date" class="form-control" value="{{ request.args.date }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Rechercher</button>
+    </div>
+</form>
+
+<table class="table table-bordered">
+    <tr>
+        <th>ID</th><th>Pièce</th><th>Quantité</th><th>Prix</th><th>Date</th><th>Action</th>
+    </tr>
+    {% for v in ventes %}
+    <tr>
+        <td>{{ v.id }}</td>
+        <td>{{ v.piece.nom }}</td>
+        <td>{{ v.quantite }}</td>
+        <td>{{ v.prix }}</td>
+        <td>{{ v.date.strftime('%d/%m/%Y') }}</td>
+        <td>
+            <a href="{{ url_for('ventes.modifier_vente', vente_id=v.id) }}" class="btn btn-sm btn-info">Modifier</a>
+
+            <form method="POST" action="{{ url_for('ventes.supprimer_vente', vente_id=v.id) }}" onsubmit="return confirm('Supprimer ?')">
+                <button class="btn btn-sm btn-danger">Supprimer</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouveau mouvement{% endblock %}
+
+{% block content %}
+
+<h2>Modifier la vente #{{ vente.id }}</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label>Pièce</label>
+        <select name="piece_id" class="form-control">
+            {% for piece in pieces %}
+            <option value="{{ piece.id }}" {% if piece.id == vente.piece_id %}selected{% endif %}>{{ piece.nom }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label>Quantité</label>
+        <input type="number" name="quantite" class="form-control" value="{{ vente.quantite }}" required>
+    </div>
+    <div class="mb-3">
+        <label>Prix</label>
+        <input type="text" name="prix" class="form-control" value="{{ vente.prix }}" required>
+    </div>
+    <div class="mb-3">
+        <label>Centre</label>
+        <select name="centre_id" class="form-control">
+            {% for centre in centres %}
+            <option value="{{ centre.id }}" {% if centre.id == vente.centre_id %}selected{% endif %}>{{ centre.nom }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+    <a href="{{ url_for('ventes.lister_ventes') }}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

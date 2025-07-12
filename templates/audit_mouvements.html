@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Audit mouvements{% endblock %}
+
+<h2>Audit des mouvements</h2>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-2">
+        <select name="type" class="form-select">
+            <option value="">Tous les types</option>
+            {% for t in types %}
+            <option value="{{ t }}" {% if filters.type == t %}selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <select name="centre_id" class="form-select">
+            <option value="">Tous les centres</option>
+            {% for c in centres %}
+            <option value="{{ c.id }}" {% if filters.centre_id == c.id|string %}selected{% endif %}>{{ c.nom }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <select name="utilisateur_id" class="form-select">
+            <option value="">Tous les utilisateurs</option>
+            {% for u in utilisateurs %}
+            <option value="{{ u.id }}" {% if filters.utilisateur_id == u.id|string %}selected{% endif %}>{{ u.nom_utilisateur }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2"><input name="date_debut" type="date" class="form-control" value="{{ filters.date_debut }}"></div>
+    <div class="col-md-2"><input name="date_fin" type="date" class="form-control" value="{{ filters.date_fin }}"></div>
+    <div class="col-md-2"><button class="btn btn-primary w-100">Filtrer</button></div>
+</form>
+
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Centre</th>
+            <th>Pièce</th>
+            <th>Quantité</th>
+            <th>Utilisateur</th>
+            <th>Source</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in mouvements %}
+        <tr class="mouvement-{{ m.type }}">
+            <td>{{ m.date.strftime('%d/%m/%Y') }}</td>
+            <td>
+                <i class="fa fa-{{ icon_for(m.type) }}"></i>
+                {{ m.type }}
+            </td>
+            <td>{{ m.centre.nom }}</td>
+            <td>{{ m.piece.nom }}</td>
+            <td>{{ m.quantite }}</td>
+            <td>{{ m.utilisateur.nom_utilisateur if m.utilisateur else "—" }}</td>
+            <td>{{ m.source }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

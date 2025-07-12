@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouveau mouvement{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Nouveau mouvement</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.type.label(class="form-label") }}
+            {{ form.type(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.piece_id.label(class="form-label") }}
+            {{ form.piece_id(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.quantite.label(class="form-label") }}
+            {{ form.quantite(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.centre_id.label(class="form-label") }}
+            {{ form.centre_id(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.commentaire.label(class="form-label") }}
+            {{ form.commentaire(class="form-control") }}
+        </div>
+        {{ form.submit(class="btn btn-warning") }}
+        <a href="{{ url_for('mouvements.lister_mouvements') }}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

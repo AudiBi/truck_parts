@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock centre{% endblock %}
+
+{% block content %}
+
+<h2>Stock du centre : {{  }}</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Pièce</th>
+            <th>Quantité</th>
+            <th>Seuil</th>
+            <th>État</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in stock_data %}
+        <tr>
+            <td>{{ s.piece }}</td>
+            <td>{{ s.quantite }}</td>
+            <td>{{ s.seuil }}</td>
+            <td>
+                {% if s.quantite < s.seuil %}
+                    <span class="text-danger">Sous seuil</span>
+                {% else %}
+                    <span class="text-success">OK</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
