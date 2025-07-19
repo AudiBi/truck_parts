@@ -4,7 +4,11 @@
 
 {% block content %}
 <div class="container my-4">
-    <h2 class="mb-4">📦 Tableau de bord du stock - {{ current_user.centre.nom }}</h2>
+    {% if current_user.centre_gere %}
+        <h2 class="mb-4">📦 Liste des stocks du centre - {{ current_user.centre_gere.nom }}</h2>
+    {% else %}
+        <div class="alert alert-warning">Aucun centre n’est assigné à votre compte.</div>
+    {% endif %}
 
     <!-- Alertes de stock bas -->
     {% set alertes = stock_infos | selectattr("sous_seuil") | list %}

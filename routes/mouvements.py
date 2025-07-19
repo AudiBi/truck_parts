@@ -62,7 +62,7 @@ def nouveau_mouvement():
         db.session.add(mouvement)
         db.session.commit()
         flash("Mouvement enregistré.", "success")
-        return redirect(url_for('gestion.lister_mouvements'))
+        return redirect(url_for('mouvements.lister_mouvements'))
 
     return render_template('gestion/nouveau_mouvement.html', form=form)
 

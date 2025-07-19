@@ -3,38 +3,88 @@
 {% block title %}Tableau de bord Gestionnaire - Truck Parts{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="mb-4">👋 Bienvenue, {{ current_user.prenom }} (Gestionnaire)</h2>
+<div class="container-fluid my-4">
+    <div class="row">
 
-    <div class="row g-4">
-        <!-- Gestion des stocks -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">📦 Gestion des stocks</h5>
-                    <p class="card-text">Visualisez et mettez à jour les quantités disponibles dans votre centre.</p>
-                    <a href="{{ url_for('stock.consulter_stock') }}" class="btn btn-outline-primary">
-                        📊 Voir le stock
-                    </a>
+        <!-- Tableau de bord principal -->
+        <div class="col-md-9">
+            <h2 class="mb-4">👋 Bienvenue, {{ current_user.prenom }} (Gestionnaire)</h2>
+
+            <!-- Widgets -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-header">Stock total</div>
+                        <div class="card-body">
+                            <h5 class="card-title">1 245 pièces</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-header">Mouvements ce mois</div>
+                        <div class="card-body">
+                            <h5 class="card-title">321 entrées / 289 sorties</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-header">Alertes</div>
+                        <div class="card-body">
+                            <h5 class="card-title">5 ruptures de stock</h5>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Mouvements de pièces -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
+            <!-- Graphique -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    📊 Mouvements mensuels de pièces
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">🔄 Mouvements de pièces</h5>
-                    <p class="card-text">Ajoutez ou consultez les mouvements de stock (entrée, sortie, transfert).</p>
-                    <a href="{{ url_for('mouvements.lister_mouvements') }}" class="btn btn-outline-secondary">
-                        📜 Historique des mouvements
-                    </a>
-                    <a href="{{ url_for('mouvements.nouveau_mouvement') }}" class="btn btn-warning ms-2">
-                        ➕ Nouveau mouvement
-                    </a>
+                    <canvas id="mouvementsChart" height="100"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('mouvementsChart').getContext('2d');
+    const mouvementsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
+            datasets: [
+                {
+                    label: 'Entrées',
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    data: [120, 150, 180, 90, 200, 170, 190]
+                },
+                {
+                    label: 'Sorties',
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    data: [100, 130, 160, 70, 180, 140, 160]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: {
+                    display: true,
+                    text: 'Évolution mensuelle des mouvements de pièces'
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

@@ -3,16 +3,113 @@
 {% block title %}Tableau de bord Vendeur{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Bienvenue, {{ current_user.prenom }} (Vendeur)</h1>
+<div class="container-fluid mt-4">
+    <div class="row">
+      
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Dernières ventes</h5>
-            <p class="card-text">Voir les ventes récentes et ajouter de nouvelles transactions.</p>
-            <a href="{{ url_for('ventes.lister_ventes') }}" class="btn btn-primary">Voir les ventes</a>
-            <a href="{{ url_for('ventes.nouvelle_vente') }}" class="btn btn-success">Nouvelle vente</a>
+        <!-- Main dashboard -->
+        <div class="col-md-9">
+            <h1 class="mb-4">👋 Bienvenue, {{ current_user.prenom }} (Vendeur)</h1>
+
+            <!-- Widgets -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-header">Ventes ce mois</div>
+                        <div class="card-body">
+                            <h5 class="card-title">57 ventes</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-header">Revenus générés</div>
+                        <div class="card-body">
+                            <h5 class="card-title">12 450 €</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-header">Clients ce mois</div>
+                        <div class="card-body">
+                            <h5 class="card-title">38 clients</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panier moyen -->
+            <div class="card mb-4">
+                <div class="card-header">💶 Panier moyen</div>
+                <div class="card-body">
+                    <p class="lead">218,42 €</p>
+                    <p class="text-muted">Calcul basé sur les 30 derniers jours.</p>
+                </div>
+            </div>
+
+            <!-- Produits les plus vendus -->
+            <div class="card mb-4">
+                <div class="card-header">⭐ Produits les plus vendus</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Plaquettes de frein
+                            <span class="badge bg-primary rounded-pill">128</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Filtres à huile
+                            <span class="badge bg-primary rounded-pill">94</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Ampoules LED H7
+                            <span class="badge bg-primary rounded-pill">81</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Graphique -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    📊 Ventes mensuelles
+                </div>
+                <div class="card-body">
+                    <canvas id="ventesChart" height="100"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctxVentes = document.getElementById('ventesChart').getContext('2d');
+    const ventesChart = new Chart(ctxVentes, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
+            datasets: [{
+                label: 'Nombre de ventes',
+                data: [12, 18, 22, 15, 30, 27, 35],
+                fill: true,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Évolution des ventes mensuelles'
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

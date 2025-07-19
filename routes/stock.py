@@ -10,9 +10,19 @@ stock_bp = Blueprint('stock', __name__, url_prefix='/stock')
 @stock_bp.route('/centre/stock')
 @login_required
 def consulter_stock():
-    centre_id = current_user.centre_id
-    search = request.args.get('search', '')
+    # Trouver le centre selon le rôle
+    centre_id = None
 
+    if hasattr(current_user, 'centre_gere') and current_user.centre_gere:
+        centre_id = current_user.centre_gere.id  # Gestionnaire
+    elif hasattr(current_user, 'centre_id') and current_user.centre_id:
+        centre_id = current_user.centre_id       # Autre cas simple
+
+    if not centre_id:
+        flash("Aucun centre assigné à votre compte.", "danger")
+        return redirect(url_for('main.index'))
+
+    search = request.args.get('search', '')
     query = StockCentre.query.join(Piece).filter(StockCentre.centre_id == centre_id)
 
     if search:
@@ -20,13 +30,10 @@ def consulter_stock():
 
     stocks = query.all()
 
-    # Préparer les infos avec détection de seuil
-    stock_infos = []
-    for stock in stocks:
-        stock_infos.append({
-            'stock': stock,
-            'sous_seuil': stock.quantite < stock.piece.seuil
-        })
+    stock_infos = [{
+        'stock': stock,
+        'sous_seuil': stock.quantite < stock.piece.seuil
+    } for stock in stocks]
 
     return render_template(
         'gestion/stock.html',

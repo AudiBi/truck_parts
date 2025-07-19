@@ -7,6 +7,11 @@ from flask_bcrypt import generate_password_hash
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
+
+vendeurs_centres = db.Table('vendeurs_centres',
+    db.Column('centre_id', db.Integer, db.ForeignKey('centres.id'), primary_key=True),
+    db.Column('utilisateur_id', db.Integer, db.ForeignKey('utilisateurs.id'), primary_key=True)
+)
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
@@ -28,6 +33,12 @@ class Utilisateur(db.Model, UserMixin):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     role = db.relationship('Role', back_populates='utilisateurs', lazy=True)
     centre_id = db.Column(db.Integer, db.ForeignKey('centres.id'), nullable=True)
+
+    # Centre qu’il gère (si gestionnaire)
+    centre_gere = db.relationship('Centre', foreign_keys='Centre.gestionnaire_id', back_populates='gestionnaire', uselist=False)
+
+    # Centres où il est vendeur (many-to-many)
+    centres_affectes = db.relationship('Centre', secondary=vendeurs_centres, back_populates='vendeurs')
     
 
     def set_password(self, mot_de_passe):
@@ -52,6 +63,14 @@ class Centre(db.Model):
     nom = db.Column(db.String(100), unique=True, nullable=False)
     type = db.Column(db.String(50), nullable=False)
     stocks = db.relationship('StockCentre', backref='centre', lazy=True)
+
+    # Gestionnaire (un seul utilisateur avec rôle gestionnaire)
+    gestionnaire_id = db.Column(db.Integer, db.ForeignKey('utilisateurs.id'), nullable=True)
+    gestionnaire = db.relationship('Utilisateur', foreign_keys=[gestionnaire_id], back_populates='centre_gere')
+
+    # Vendeurs (plusieurs utilisateurs avec rôle vendeur)
+    vendeurs = db.relationship('Utilisateur', secondary=vendeurs_centres, back_populates='centres_affectes')
+
 
 class Piece(db.Model):
     __tablename__ = 'pieces'

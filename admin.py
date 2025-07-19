@@ -2,9 +2,18 @@ from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user
 from flask import redirect, url_for, flash
 from wtforms import PasswordField
+from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
+
 
 from forms import UtilisateurForm
-from models import Utilisateur
+from models import Role, Utilisateur
+
+
+def vendeur_query():
+    return Utilisateur.query.join(Role).filter(Role.nom == 'vendeur')
+
+def gestionnaire_query():
+    return Utilisateur.query.join(Role).filter(Role.nom == 'gestionnaire')
 
 class SecureModelView(ModelView):
     def is_accessible(self):
@@ -47,9 +56,20 @@ class JournalActiviteAdmin(SecureModelView):
 
 
 class CentreAdmin(SecureModelView):
-    column_list = ('id', 'nom', 'type')
-    form_columns = ('nom', 'type')
-    column_searchable_list = ('nom',)
+    form_overrides = {
+        'gestionnaire': QuerySelectField,
+        'vendeurs': QuerySelectMultipleField
+    }
+    form_args = {
+        'gestionnaire': {
+            'query_factory': gestionnaire_query,
+            'get_label': lambda u: f"{u.prenom} {u.nom}"
+        },
+        'vendeurs': {
+            'query_factory': vendeur_query,
+            'get_label': lambda u: f"{u.prenom} {u.nom}"
+        }
+    }
 
 class PieceAdmin(SecureModelView):
     column_list = ('nom', 'reference', 'prix_achat', 'prix_vente', 'seuil', 'stock_total')
